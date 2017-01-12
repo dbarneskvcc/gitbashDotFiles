@@ -1,6 +1,6 @@
 # Gitbash Dot Files
 
-## Author
+## Author did nothing
 
 David Barnes
 
