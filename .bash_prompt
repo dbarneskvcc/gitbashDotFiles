@@ -1,6 +1,9 @@
 # Bash prompt to change the default terminal prompt and add some git information.
 # David Barnes
 
+# Disable python default Virtual Environment prompt
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
 # Use colored prompt
 export TERM=xterm-color
 export CLICOLOR=1
