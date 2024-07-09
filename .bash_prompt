@@ -158,7 +158,7 @@ git_status_dirty () {
 
 # Outputs if current branch is ahead of remote
 git_status_ahead () {
-  if [[ -n "$(git rev-list origin/$(current_branch)..HEAD 2> /dev/null)" ]]; then
+  if [[ -n "$(git rev-list origin/$(current_branch_name)..HEAD 2> /dev/null)" ]]; then
     echo "${BASH_THEME_GIT_PROMPT_AHEAD}"
   fi
 }
@@ -166,7 +166,7 @@ git_status_ahead () {
 # old pos was after current_branch for... $(git_prompt_short_sha)
 # old pos was before dirty status for...$(git_prompt_status)
 git_status () {
-  local cb=$(current_branch)
+  local cb=$(current_branch_name)
   if [ -n "${cb}" ]; then
     echo -e "${NC} on $(git_status_branch) $(git_status_time) $(git_status_dirty) $(git_status_ahead)"
   fi
