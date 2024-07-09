@@ -60,7 +60,7 @@ BASH_THEME_GIT_LAST_COMMIT_MED_MINUTES=20
 BASH_THEME_GIT_PROMPT_BRANCH_COLOR="${B_BLUE}"
 
 # Bash Git Config dirty and clean text.
-BASH_THEME_GIT_PROMPT_DIRTY=" ${B_RED}(*)${NC}"
+BASH_THEME_GIT_PROMPT_DIRTY="${B_RED}(*)${NC}"
 BASH_THEME_GIT_PROMPT_CLEAN=""
 
 # Bash Git Config duration colors.
@@ -70,10 +70,10 @@ BASH_THEME_GIT_TIME_SINCE_COMMIT_LONG_COLOR="${B_RED}"
 BASH_THEME_GIT_TIME_SINCE_COMMIT_NEUTRAL_COLOR="${BLUE}"
 
 # Format for git_prompt_ahead()
-BASH_THEME_GIT_PROMPT_AHEAD=" ${B_WHITE}(${B_YELLOW}↑${B_WHITE})${NC}"
+BASH_THEME_GIT_PROMPT_AHEAD="${B_WHITE}(${B_YELLOW}↑${B_WHITE})${NC}"
 
 # Get and output current branch name
-current_branch () {
+current_branch_name () {
   local ref
   ref=$(git symbolic-ref --quiet HEAD 2> /dev/null)
   local ret="$?"
@@ -81,35 +81,11 @@ current_branch () {
     [[ $ret == 128 ]] && return
     ref=$(git rev-parse --short HEAD 2> /dev/null) || return
   fi
-  echo "${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}${ref#refs/heads/}${NC}"
+  echo "${ref#refs/heads/}"
 }
 
-# Outputs if current branch is ahead of remote
-git_prompt_ahead () {
-  if [[ -n "$(git rev-list origin/$(current_branch)..HEAD 2> /dev/null)" ]]; then
-    echo "${BASH_THEME_GIT_PROMPT_AHEAD}"
-  fi
-}
-
-# Checks if working tree is dirty
-parse_git_dirty () {
-  local STATUS=''
-  local FLAGS
-  FLAGS=('--porcelain')
-  if [[ "$(git config --get oh-my-zsh.hide-dirty)" != "1" ]]; then
-    if [[ ${POST_1_7_2_GIT} -gt 0 ]]; then
-      FLAGS+='--ignore-submodules=dirty'
-    fi
-    if [[ "${DISABLE_UNTRACKED_FILES_DIRTY}" == "true" ]]; then
-      FLAGS+='--untracked-files=no'
-    fi
-    STATUS=$(command git status ${FLAGS} 2> /dev/null | tail -n1)
-  fi
-  if [[ -n ${STATUS} ]]; then
-    echo "${BASH_THEME_GIT_PROMPT_DIRTY}"
-  else
-    echo "${BASH_THEME_GIT_PROMPT_CLEAN}"
-  fi
+git_status_branch () {
+    echo "${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}$(current_branch_name)${NC}"
 }
 
 # Determine the time since last commit. If branch is clean,
@@ -155,16 +131,44 @@ git_time_since_commit () {
 }
 
 # Format and output git time since commit
-my_git_time () {
-  echo "${NC} ($(git_time_since_commit)${NC})"
+git_status_time () {
+  echo "${NC}($(git_time_since_commit)${NC})"
+}
+
+# Checks if working tree is dirty
+git_status_dirty () {
+  local STATUS=''
+  local FLAGS
+  FLAGS=('--porcelain')
+  if [[ "$(git config --get oh-my-zsh.hide-dirty)" != "1" ]]; then
+    if [[ ${POST_1_7_2_GIT} -gt 0 ]]; then
+      FLAGS+='--ignore-submodules=dirty'
+    fi
+    if [[ "${DISABLE_UNTRACKED_FILES_DIRTY}" == "true" ]]; then
+      FLAGS+='--untracked-files=no'
+    fi
+    STATUS=$(command git status ${FLAGS} 2> /dev/null | tail -n1)
+  fi
+  if [[ -n ${STATUS} ]]; then
+    echo "${BASH_THEME_GIT_PROMPT_DIRTY}"
+  else
+    echo "${BASH_THEME_GIT_PROMPT_CLEAN}"
+  fi
+}
+
+# Outputs if current branch is ahead of remote
+git_status_ahead () {
+  if [[ -n "$(git rev-list origin/$(current_branch)..HEAD 2> /dev/null)" ]]; then
+    echo "${BASH_THEME_GIT_PROMPT_AHEAD}"
+  fi
 }
 
 # old pos was after current_branch for... $(git_prompt_short_sha)
 # old pos was before dirty status for...$(git_prompt_status)
-git_custom_status () {
+git_status () {
   local cb=$(current_branch)
   if [ -n "${cb}" ]; then
-    echo -e "${NC} on $(current_branch)$(my_git_time)$(parse_git_dirty)$(git_prompt_ahead)"
+    echo -e "${NC} on $(git_status_branch) $(git_status_time) $(git_status_dirty) $(git_status_ahead)"
   fi
 }
 
@@ -179,4 +183,4 @@ virtualenv_info(){
     fi
 }
 
-PS1='`virtualenv_info`'"\[$PINK\]\u \[$NC\]at \[$YELLOW\]\h \[$NC\]in \[$CYAN\]\w"'`git_custom_status`'"\n\[$CYAN\]> \[$NC\]"
+PS1='`virtualenv_info`'"\[$PINK\]\u \[$NC\]at \[$YELLOW\]\h \[$NC\]in \[$CYAN\]\w"'`git_status`'"\n\[$CYAN\]> \[$NC\]"
