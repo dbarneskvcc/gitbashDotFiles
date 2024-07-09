@@ -163,12 +163,27 @@ git_status_ahead () {
   fi
 }
 
-# old pos was after current_branch for... $(git_prompt_short_sha)
-# old pos was before dirty status for...$(git_prompt_status)
+# Outputs the full git status.
 git_status () {
+  # Get current branch name
   local cb=$(current_branch_name)
-  if [ -n "${cb}" ]; then
-    echo -e "${NC} on $(git_status_branch) $(git_status_time) $(git_status_dirty) $(git_status_ahead)"
+  # If there is a current branch name
+  if [[ -n "${cb}" ]]; then
+    # Pull out dirty status and ahead status.
+    local gs_dirty=$(git_status_dirty)
+    local gs_ahead=$(git_status_ahead)
+    # Begin creating the status
+    local git_status="${NC} on $(git_status_branch) $(git_status_time)"
+    # If the brach is dirty, append it to the status
+    if [[ -n "${gs_dirty}" ]]; then
+        git_status="${git_status} ${gs_dirty}"
+    fi
+    # If the branch is ahead, append it to the status
+    if [[ -n "${gs_ahead}" ]]; then
+        git_status+="${git_status} ${gs_ahead}"
+    fi
+    # echo -e "${NC} on $(git_status_branch) $(git_status_time) $(git_status_dirty) $(git_status_ahead)"
+    echo -e "${git_status}"
   fi
 }
 
