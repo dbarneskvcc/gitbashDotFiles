@@ -44,7 +44,5 @@ if [ -f ~/.bash_prompt ]; then
 fi
 
 # Exports
-# Disable the default virtualenv prompt change
-export VIRTUAL_ENV_DISABLE_PROMPT=1
 # Make pipenv create venv in project folder
 export PIPENV_VENV_IN_PROJECT=1
