@@ -60,7 +60,7 @@ BASH_THEME_GIT_LAST_COMMIT_MED_MINUTES=20
 BASH_THEME_GIT_PROMPT_BRANCH_COLOR="${B_BLUE}"
 
 # Bash Git Config dirty and clean text.
-BASH_THEME_GIT_PROMPT_DIRTY="${B_RED}(*)${NC}"
+BASH_THEME_GIT_PROMPT_DIRTY="${B_RED}(✱)${NC}"
 BASH_THEME_GIT_PROMPT_CLEAN=""
 
 # Bash Git Config duration colors.
@@ -85,7 +85,12 @@ current_branch_name () {
 }
 
 git_status_branch () {
-    echo "${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}$(current_branch_name)${NC}"
+    local branch_name=$(current_branch_name)
+    if [[ "${branch_name}" = "master" || "${branch_name}" = "main" ]]; then
+        echo "${B_YELLOW}★${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}$(current_branch_name)${NC}"
+    else
+        echo "${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}$(current_branch_name)${NC}"
+    fi
 }
 
 # Determine the time since last commit. If branch is clean,
@@ -176,11 +181,11 @@ git_status () {
     local git_status="${NC} on $(git_status_branch) $(git_status_time)"
     # If the brach is dirty, append it to the status
     if [[ -n "${gs_dirty}" ]]; then
-        git_status="${git_status} ${gs_dirty}"
+        git_status+=" ${gs_dirty}"
     fi
     # If the branch is ahead, append it to the status
     if [[ -n "${gs_ahead}" ]]; then
-        git_status+="${git_status} ${gs_ahead}"
+        git_status+=" ${gs_ahead}"
     fi
     # echo -e "${NC} on $(git_status_branch) $(git_status_time) $(git_status_dirty) $(git_status_ahead)"
     echo -e "${git_status}"
@@ -198,4 +203,4 @@ virtualenv_info(){
     fi
 }
 
-PS1='`virtualenv_info`'"\[$PINK\]\u \[$NC\]at \[$YELLOW\]\h \[$NC\]in \[$CYAN\]\w"'`git_status`'"\n\[$CYAN\]> \[$NC\]"
+PS1='`virtualenv_info`'"\[$PINK\]\u \[$NC\]at \[$YELLOW\]\h \[$NC\]in \[$CYAN\]\w"'`git_status`'"\n\[$CYAN\]▶ \[$NC\]"
