@@ -58,10 +58,12 @@ BASH_THEME_GIT_LAST_COMMIT_MED_MINUTES=20
 
 # Bash Git Config branch color.
 BASH_THEME_GIT_PROMPT_BRANCH_COLOR="${B_BLUE}"
-
-# Bash Git Config dirty and clean text.
-BASH_THEME_GIT_PROMPT_DIRTY="${B_RED}(✱)${NC}"
-BASH_THEME_GIT_PROMPT_CLEAN=""
+# Bash Git Config Dirty Color
+BASH_THEME_GIT_DIRTY_COLOR=${B_RED}
+# Bash Git Config Ahead Color
+BASH_THEME_GIT_AHEAD_COLOR=${B_YELLOW}
+# Bash Git Config Main Branch Icon Color
+BASH_THEME_GIT_BRANCH_ICON_COLOR=${B_YELLOW}
 
 # Bash Git Config duration colors.
 BASH_THEME_GIT_TIME_SINCE_COMMIT_SHORT_COLOR="${GREEN}"
@@ -69,8 +71,22 @@ BASH_THEME_GIT_TIME_SINCE_COMMIT_MEDIUM_COLOR="${YELLOW}"
 BASH_THEME_GIT_TIME_SINCE_COMMIT_LONG_COLOR="${B_RED}"
 BASH_THEME_GIT_TIME_SINCE_COMMIT_NEUTRAL_COLOR="${BLUE}"
 
+# Fix color to remove bold when using Winblows where processing of bold is not
+# consistent and may result in Bright colors being used instead of Bold.
+if [[ "${OSTYPE}" == "msys" ]]; then
+    BASH_THEME_GIT_PROMPT_BRANCH_COLOR="${BLUE}"
+    BASH_THEME_GIT_DIRTY_COLOR=${RED}
+    BASH_THEME_GIT_AHEAD_COLOR=${YELLOW}
+    BASH_THEME_GIT_BRANCH_ICON_COLOR=${YELLOW}
+    BASH_THEME_GIT_TIME_SINCE_COMMIT_LONG_COLOR="${RED}"
+fi
+
+# Bash Git Config dirty and clean text.
+BASH_THEME_GIT_PROMPT_DIRTY="${BASH_THEME_GIT_DIRTY_COLOR}(✱)${NC}"
+BASH_THEME_GIT_PROMPT_CLEAN=""
+
 # Format for git_prompt_ahead()
-BASH_THEME_GIT_PROMPT_AHEAD="${B_WHITE}(${B_YELLOW}↑${B_WHITE})${NC}"
+BASH_THEME_GIT_PROMPT_AHEAD="${B_WHITE}(${BASH_THEME_GIT_AHEAD_COLOR}↑${B_WHITE})${NC}"
 
 # Get and output current branch name
 current_branch_name () {
@@ -87,7 +103,7 @@ current_branch_name () {
 git_status_branch () {
     local branch_name=$(current_branch_name)
     if [[ "${branch_name}" = "master" || "${branch_name}" = "main" ]]; then
-        echo "${B_YELLOW}★${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}$(current_branch_name)${NC}"
+        echo "${BASH_THEME_GIT_BRANCH_ICON_COLOR}★${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}$(current_branch_name)${NC}"
     else
         echo "${BASH_THEME_GIT_PROMPT_BRANCH_COLOR}$(current_branch_name)${NC}"
     fi
